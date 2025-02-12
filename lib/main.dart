@@ -34,8 +34,14 @@ class PokemonApp extends StatelessWidget {
 }
 
 // pokemon_list_screen.dart
-class PokemonListScreen extends StatelessWidget {
+class PokemonListScreen extends StatefulWidget {
   const PokemonListScreen({super.key});
+
+  @override
+  _PokemonListScreenState createState() => _PokemonListScreenState();
+}
+class _PokemonListScreenState extends State<PokemonListScreen> {
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -57,30 +63,52 @@ class PokemonListScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<PokemonProvider>(
-        builder: (context, provider, child) {
-          if (provider.allPokemons.isEmpty) {
-            provider.loadPokemons();
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final pokemonsToDisplay = provider.filteredPokemons.isEmpty
-              ? provider.allPokemons
-              : provider.filteredPokemons;
-
-          return GridView.builder(
-            padding: const EdgeInsets.all(8),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.75,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Rechercher un Pokémon...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onChanged: (value) {
+                context.read<PokemonProvider>().searchPokemons(value);
+              },
             ),
-            itemCount: pokemonsToDisplay.length,
-            itemBuilder: (context, index) {
-              final pokemon = pokemonsToDisplay[index];
-              return PokemonCard(pokemon: pokemon);
-            },
-          );
-        },
+          ),
+          Expanded(
+            child: Consumer<PokemonProvider>(
+              builder: (context, provider, child) {
+                if (provider.allPokemons.isEmpty) {
+                  provider.loadPokemons();
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final pokemonsToDisplay = provider.filteredPokemons.isEmpty
+                    ? provider.allPokemons
+                    : provider.filteredPokemons;
+
+                return GridView.builder(
+                  padding: const EdgeInsets.all(8),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.75,
+                  ),
+                  itemCount: pokemonsToDisplay.length,
+                  itemBuilder: (context, index) {
+                    final pokemon = pokemonsToDisplay[index];
+                    return PokemonCard(pokemon: pokemon);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -490,14 +518,14 @@ class PokemonTeamCard extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
               ),
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.all(4),
                 child: Text(
                   pokemon.name,
                   style: Theme.of(context).textTheme.bodySmall,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
+              ),*/
             ],
           ),
           if (onRemove != null)

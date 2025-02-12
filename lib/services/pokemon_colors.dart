@@ -11,7 +11,7 @@ Color getTypeColor(String type) {
     case 'electric':
       return Colors.yellow;
     case 'psychic':
-      return Colors.pinkAccent;
+      return Colors.pink;
     case 'rock':
       return Colors.brown;
     case 'ground':

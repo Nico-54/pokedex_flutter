@@ -5,7 +5,7 @@ import '../models/pokemon.dart';
 class PokemonService {
   static const String baseUrl = 'https://pokeapi.co/api/v2';
 
-  Future<List<Pokemon>> getPokemonList({int limit = 151}) async {
+  Future<List<Pokemon>> getPokemonList({int limit = 250}) async {
     final response = await http.get(Uri.parse('$baseUrl/pokemon?limit=$limit'));
 
     if (response.statusCode == 200) {

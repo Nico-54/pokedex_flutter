@@ -12,6 +12,7 @@ class PokemonProvider with ChangeNotifier {
   List<String> selectedTypes = [];
   final Team _playerTeam = Team(pokemons: []);
   final Team _computerTeam = Team(pokemons: [], isComputerTeam: true);
+  String searchQuery = '';
 
   List<Pokemon> get allPokemons => _allPokemons;
   Team get playerTeam => _playerTeam;
@@ -19,6 +20,19 @@ class PokemonProvider with ChangeNotifier {
 
   Future<void> loadPokemons() async {
     _allPokemons = await _service.getPokemonList();
+    notifyListeners();
+  }
+
+    void searchPokemons(String query) {
+    searchQuery = query.toLowerCase();
+    if (searchQuery.isEmpty) {
+      filteredPokemons = allPokemons;
+    } else {
+      filteredPokemons = allPokemons
+          .where((pokemon) =>
+              pokemon.name.toLowerCase().contains(searchQuery))
+          .toList();
+    }
     notifyListeners();
   }
 
