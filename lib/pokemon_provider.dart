@@ -1,5 +1,6 @@
 // lib/providers/pokemon_provider.dart
-import 'package:flutter/foundation.dart';
+//import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'dart:math';
 import '../models/pokemon.dart';
 import '../services/pokemon_service.dart';
@@ -43,8 +44,19 @@ class PokemonProvider with ChangeNotifier {
     notifyListeners(); // Notifie l'UI pour actualiser la liste
   }
 
-  void addToPlayerTeam(Pokemon pokemon) {
-    if (!_playerTeam.isFull && !_playerTeam.pokemons.contains(pokemon)) {
+  void addToPlayerTeam(Pokemon pokemon, BuildContext context) {
+    if (_playerTeam.isFull) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Votre équipe est pleine !"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return; // On empêche l'ajout
+    }
+
+    if (!_playerTeam.pokemons.contains(pokemon)) {
       pokemon.isSelected = true;
       _playerTeam.pokemons.add(pokemon);
       notifyListeners();

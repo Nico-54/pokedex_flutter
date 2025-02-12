@@ -277,18 +277,22 @@ class PokemonDetailScreen extends StatelessWidget {
                       final isInTeam =
                           provider.playerTeam.pokemons.contains(pokemon);
                       return ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green, // Fond rouge
+                          foregroundColor: Colors.white, // Texte en blanc
+                        ),
                         onPressed: () {
                           if (isInTeam) {
                             provider.removeFromPlayerTeam(pokemon);
                           } else {
-                            provider.addToPlayerTeam(pokemon);
+                            provider.addToPlayerTeam(pokemon, context);
                           }
                         },
                         child: Text(
                           isInTeam
                               ? 'Retirer de l\'équipe'
                               : 'Ajouter à l\'équipe',
-                        ),
+                        ), 
                       );
                     },
                   ),
@@ -439,9 +443,10 @@ class StatsWidget extends StatelessWidget {
         children: [
           SizedBox(
             width: 100,
-            child: Text(label),
+            child: Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           ),
-          Expanded(
+          SizedBox(
+            width: 235,
             child: LinearProgressIndicator(
               value: value / 255,
               backgroundColor: Colors.grey[200],
@@ -453,6 +458,7 @@ class StatsWidget extends StatelessWidget {
             child: Text(
               value.toString(),
               textAlign: TextAlign.end,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
             ),
           ),
         ],
