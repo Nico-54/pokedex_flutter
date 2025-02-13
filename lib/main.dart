@@ -272,6 +272,10 @@ class PokemonDetailScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 16),
+                  Text(
+                    'Type(s)',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   Wrap(
                     spacing: 8,
                     children: pokemon.types.map((type) {
@@ -287,6 +291,78 @@ class PokemonDetailScreen extends StatelessWidget {
                           style: const TextStyle(
                             color: Colors
                                 .white, // Texte blanc pour une meilleure lisibilité
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Faiblesse(s)',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  Wrap(
+                    spacing: 8,
+                    children: pokemon.weaks.map((type) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: getTypeColor(type),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          type,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Résistance(s)',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  Wrap(
+                    spacing: 8,
+                    children: pokemon.resistances.map((type) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: getTypeColor(type),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          type,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Immunité(s)',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  Wrap(
+                    spacing: 8,
+                    children: pokemon.imunes.map((type) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: getTypeColor(type),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          type,
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
