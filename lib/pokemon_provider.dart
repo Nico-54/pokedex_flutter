@@ -10,11 +10,13 @@ class PokemonProvider with ChangeNotifier {
   List<Pokemon> _allPokemons = [];
   List<Pokemon> filteredPokemons = [];
   List<String> selectedTypes = [];
+  List<Pokemon> favoritePokemons = [];
   final Team _playerTeam = Team(pokemons: []);
   final Team _computerTeam = Team(pokemons: [], isComputerTeam: true);
   String searchQuery = '';
 
   List<Pokemon> get allPokemons => _allPokemons;
+  List<Pokemon> get favorites => favoritePokemons;
   Team get playerTeam => _playerTeam;
   Team get computerTeam => _computerTeam;
 
@@ -23,7 +25,8 @@ class PokemonProvider with ChangeNotifier {
     notifyListeners();
   }
 
-    void searchPokemons(String query) {
+  // Champ de recherche
+  void searchPokemons(String query) {
     searchQuery = query.toLowerCase();
     if (searchQuery.isEmpty) {
       filteredPokemons = allPokemons;
@@ -36,6 +39,7 @@ class PokemonProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Selection du type
   void toggleTypeSelection(String type, bool isSelected) {
     if (isSelected) {
       selectedTypes.add(type);
@@ -58,6 +62,17 @@ class PokemonProvider with ChangeNotifier {
     notifyListeners(); // Notifie l'UI pour actualiser la liste
   }
 
+// Favoris
+  void toggleFavorite(Pokemon pokemon) {
+    if (favoritePokemons.contains(pokemon)) {
+      favoritePokemons.remove(pokemon);
+    } else {
+      favoritePokemons.add(pokemon);
+    }
+    notifyListeners();
+  }
+
+  // Ajout équipe du joueur
   void addToPlayerTeam(Pokemon pokemon, BuildContext context) {
     if (_playerTeam.isFull) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -77,12 +92,14 @@ class PokemonProvider with ChangeNotifier {
     }
   }
 
+  // Retirer équipe du joueur
   void removeFromPlayerTeam(Pokemon pokemon) {
     pokemon.isSelected = false;
     _playerTeam.pokemons.remove(pokemon);
     notifyListeners();
   }
 
+  // Génération de l'équipe adverse
   void generateComputerTeam() {
     final random = Random();
     _computerTeam.pokemons.clear();
@@ -96,6 +113,7 @@ class PokemonProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Gagnant du combat
   String determineBattleWinner() {
     if (_playerTeam.pokemons.length != 6 ||
         _computerTeam.pokemons.length != 6) {

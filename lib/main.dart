@@ -61,6 +61,13 @@ class _PokemonListScreenState extends State<PokemonListScreen> {
             icon: const Icon(Icons.filter_alt),
             onPressed: () => _showFilterDialog(context),
           ),
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => FavoritePokemonsScreen()),
+            ),
+          ),
         ],
       ),
       body: Column(
@@ -182,6 +189,7 @@ class PokemonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<PokemonProvider>();
     return Card(
       elevation: 4,
       child: InkWell(
@@ -193,6 +201,15 @@ class PokemonCard extends StatelessWidget {
         ),
         child: Column(
           children: [
+            IconButton(
+              icon: Icon(
+                provider.favorites.contains(pokemon) ? Icons.star : Icons.star_border,
+                color: provider.favorites.contains(pokemon) ? Colors.yellow : null,
+              ),
+              onPressed: () {
+                provider.toggleFavorite(pokemon);
+              },
+            ),
             Expanded(
               child: Image.network(
                 pokemon.imageUrl,
@@ -321,7 +338,7 @@ class PokemonDetailScreen extends StatelessWidget {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 26),
                   Text(
                     'Résistance(s)',
                     style: Theme.of(context).textTheme.titleLarge,
@@ -345,14 +362,16 @@ class PokemonDetailScreen extends StatelessWidget {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 26),
                   Text(
                     'Immunité(s)',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   Wrap(
                     spacing: 8,
-                    children: pokemon.imunes.map((type) {
+                    children: pokemon.imunes.isEmpty ? 
+                    [Text('Aucune immunité', style: Theme.of(context).textTheme.titleMedium,)] 
+                    : pokemon.imunes.map((type) {
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
@@ -369,7 +388,7 @@ class PokemonDetailScreen extends StatelessWidget {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 26),
                   Text(
                     'Statistiques',
                     style: Theme.of(context).textTheme.titleLarge,
@@ -382,7 +401,7 @@ class PokemonDetailScreen extends StatelessWidget {
                           provider.playerTeam.pokemons.contains(pokemon);
                       return ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green, // Fond rouge
+                          backgroundColor:isInTeam ? Colors.red : Colors.green,
                           foregroundColor: Colors.white, // Texte en blanc
                         ),
                         onPressed: () {
@@ -519,6 +538,45 @@ class TeamScreen extends StatelessWidget {
     );
   }
 }
+
+class FavoritePokemonsScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<PokemonProvider>();
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Pokémons Favoris')),
+      body: provider.favorites.isEmpty
+          ? Center(child: Text("Aucun Pokémon favori."))
+          : ListView.builder(
+              itemCount: provider.favorites.length,
+              itemBuilder: (context, index) {
+                final pokemon = provider.favorites[index];
+                return ListTile(
+                  leading: Image.network(
+                    pokemon.imageUrl,
+                    fit: BoxFit.contain,
+                    width: 50,
+                    height: 50,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(child: CircularProgressIndicator());
+                    },
+                  ),
+                  title: Text(pokemon.name), // Affichage du nom du Pokémon
+                  trailing: IconButton(
+                    icon: Icon(Icons.star, color: Colors.yellow),
+                    onPressed: () {
+                      provider.toggleFavorite(pokemon);
+                    },
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}
+
 
 // widgets auxiliaires
 class StatsWidget extends StatelessWidget {
