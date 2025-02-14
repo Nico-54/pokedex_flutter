@@ -1,16 +1,18 @@
+# Crédit
+
+Réaliser par Nicolas LEIRITZ dans le cadre d'un apprentissage Flutter au CESI de Vandoeuvre
+
 # pokemon_project
 
-A new Flutter project.
+Création d'un pokédex avec un système de composition d'équipe, composition aléatoire de l'quipe adverse et système de combat.
 
-## Getting Started
+# Combat
 
-This project is a starting point for a Flutter application.
+Les combats sont la somme de toutes les bases des pokémon composant chaque équipe. La valeur total la plus haute gagne.
 
-A few resources to get you started if this is your first Flutter project:
+# Filtres
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Il est possible de rechercher un pokémon par son nom (Anglais) ou par son type.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# Captures
+
