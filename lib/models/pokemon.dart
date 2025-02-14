@@ -1,13 +1,37 @@
+import 'package:hive/hive.dart';
+
+part 'pokemon.g.dart'; // Génère le fichier d'adapteur
+
+@HiveType(typeId: 0)
 class Pokemon {
+  @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final String name;
+
+  @HiveField(2)
   final String imageUrl;
+
+  @HiveField(3)
   final List<String> types;
+  
+  @HiveField(4)
   final Stats stats;
+
+  @HiveField(5)
   final String description;
+  
+  @HiveField(6)
   bool isSelected;
+  
+  @HiveField(7)
   final List<String> resistances;
+  
+  @HiveField(8)
   final List<String> imunes;
+  
+  @HiveField(9)
   final List<String> weaks;
 
   Pokemon({
@@ -131,12 +155,24 @@ class Pokemon {
   int get totalStats => stats.total;
 }
 
+@HiveType(typeId: 1)
 class Stats {
+  @HiveField(0)
   final int hp;
+
+  @HiveField(1)
   final int attack;
+  
+  @HiveField(2)
   final int defense;
+
+  @HiveField(3)
   final int specialAttack;
+
+  @HiveField(4)
   final int specialDefense;
+
+  @HiveField(5)
   final int speed;
 
   Stats({

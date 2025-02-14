@@ -2,11 +2,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import './models/pokemon.dart';
 import './pokemon_provider.dart';
 import './services/pokemon_colors.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(PokemonAdapter());
+  Hive.registerAdapter(StatsAdapter());
+
+  await Hive.openBox<Pokemon>('favorites');
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => PokemonProvider(),
@@ -189,7 +197,6 @@ class PokemonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<PokemonProvider>();
     return Card(
       elevation: 4,
       child: InkWell(
@@ -201,13 +208,18 @@ class PokemonCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            IconButton(
-              icon: Icon(
-                provider.favorites.contains(pokemon) ? Icons.star : Icons.star_border,
-                color: provider.favorites.contains(pokemon) ? Colors.yellow : null,
-              ),
-              onPressed: () {
-                provider.toggleFavorite(pokemon);
+            Consumer<PokemonProvider>(
+              builder: (context, provider, _) {
+                final isFavorite = provider.favorites.any((fav) => fav.id == pokemon.id);
+                return IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.star : Icons.star_border,
+                    color: isFavorite ? Colors.yellow : null,
+                  ),
+                  onPressed: () {
+                    provider.toggleFavorite(pokemon);
+                  },
+                );
               },
             ),
             Expanded(
@@ -545,7 +557,7 @@ class FavoritePokemonsScreen extends StatelessWidget {
     final provider = context.watch<PokemonProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Pokémons Favoris')),
+      appBar: AppBar(title: Text('Favoris')),
       body: provider.favorites.isEmpty
           ? Center(child: Text("Aucun Pokémon favori."))
           : ListView.builder(

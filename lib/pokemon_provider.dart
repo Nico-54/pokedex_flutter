@@ -1,7 +1,8 @@
-// lib/providers/pokemon_provider.dart
+//lib/providers/pokemon_provider.dart
 //import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:hive/hive.dart';
 import '../models/pokemon.dart';
 import '../services/pokemon_service.dart';
 
@@ -10,18 +11,28 @@ class PokemonProvider with ChangeNotifier {
   List<Pokemon> _allPokemons = [];
   List<Pokemon> filteredPokemons = [];
   List<String> selectedTypes = [];
-  List<Pokemon> favoritePokemons = [];
+
+  Box<Pokemon> _favoriteBox = Hive.box<Pokemon>('favorites');
+
   final Team _playerTeam = Team(pokemons: []);
   final Team _computerTeam = Team(pokemons: [], isComputerTeam: true);
   String searchQuery = '';
 
   List<Pokemon> get allPokemons => _allPokemons;
-  List<Pokemon> get favorites => favoritePokemons;
+  List<Pokemon> get favorites => _favoriteBox.values.toList();
   Team get playerTeam => _playerTeam;
   Team get computerTeam => _computerTeam;
 
   Future<void> loadPokemons() async {
     _allPokemons = await _service.getPokemonList();
+    notifyListeners();
+  }
+
+  PokemonProvider() {
+    _loadFavorites();
+  }
+  Future<void> _loadFavorites() async {
+    _favoriteBox = await Hive.openBox<Pokemon>('favorites');
     notifyListeners();
   }
 
@@ -64,10 +75,10 @@ class PokemonProvider with ChangeNotifier {
 
 // Favoris
   void toggleFavorite(Pokemon pokemon) {
-    if (favoritePokemons.contains(pokemon)) {
-      favoritePokemons.remove(pokemon);
+    if (_favoriteBox.containsKey(pokemon.id)) {
+      _favoriteBox.delete(pokemon.id);
     } else {
-      favoritePokemons.add(pokemon);
+      _favoriteBox.put(pokemon.id, pokemon);
     }
     notifyListeners();
   }

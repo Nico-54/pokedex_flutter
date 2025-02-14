@@ -17,27 +17,27 @@ Il est possible de rechercher un pokemon par son nom (Anglais) ou par son type.
 # Captures
 
 Au lancement de l'application :
-![alt text](./Screenshot/ListPKM.png)
+![ListPKM](./Screenshot/ListPKM.png)
 
 On peut mettre les pokémons en favoris :
-![alt text](./Screenshot/ListPKMFav.png)
+![ListPKMFav](./Screenshot/ListPKMFav.png)
 
 On peut les retrouver dans une liste en cliquant sur le coeur présent dans l'AppBar :
-![alt text](./Screenshot/ListFav.png)
+![ListFav](./Screenshot/ListFav.png)
 
 On peut les trier par le nom ou par le type via le champ de recherche ou la seconde icone de l'AppBar :
-![alt text](./Screenshot/TriName.png)
-![alt text](./Screenshot/TriTypes.png)
+![TriNamet](./Screenshot/TriName.png)
+![TriTypes](./Screenshot/TriTypes.png)
 
 On a une description avec les stats, les faiblesses, forces et immunités :
-![alt text](./Screenshot/DetailsPKM.png)
-![alt text](./Screenshot/DetailsPKM2.png)
+![DetailsPKM](./Screenshot/DetailsPKM.png)
+![DetailsPKM2](./Screenshot/DetailsPKM2.png)
 
 On peut ajouter 6 pokemon dans une équipe. Si cette dernière est pleine :
-![alt text](./Screenshot/FullTeam.png)
+![FullTeam](./Screenshot/FullTeam.png)
 
 On peut accéder à la page du combat via la première icone dans l'AppBar. L'équipe adverse peut être généré aléatoirement via l'icone du dé :
-![alt text](./Screenshot/Combat.png)
+![Combat](./Screenshot/Combat.png)
 
 On lance le combat avec la seconde icone. Le combat est une simple somme des base stats de chaque pokemon composant l'équipe.
-![alt text](./Screenshot/CombatResult.png)
+![CombatResult](./Screenshot/CombatResult.png)
