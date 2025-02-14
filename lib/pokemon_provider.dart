@@ -124,9 +124,9 @@ class PokemonProvider with ChangeNotifier {
     final computerPower = _computerTeam.totalPower;
 
     if (playerPower > computerPower) {
-      return "Vous avez gagné ! (${playerPower} vs ${computerPower})";
+      return "Vous avez gagné !\nVous : ${playerPower}\nAdversaire : ${computerPower})";
     } else if (computerPower > playerPower) {
-      return "L'ordinateur a gagné ! (${computerPower} vs ${playerPower})";
+      return "L'ordinateur a gagné !\nAdversaire : ${computerPower}\nVous : ${playerPower}";
     } else {
       return "Match nul ! (${playerPower})";
     }
