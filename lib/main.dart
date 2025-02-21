@@ -148,23 +148,23 @@ class _PokemonListScreenState extends State<PokemonListScreen> {
                 child: ListView(
                   children: [
                     'normal',
-                    'fire',
-                    'water',
-                    'grass',
-                    'electric',
-                    'psychic',
-                    'rock',
-                    'ground',
-                    'flying',
-                    'dark',
+                    'feu',
+                    'eau',
+                    'plante',
+                    'electrik',
+                    'psy',
+                    'roche',
+                    'sol',
+                    'vol',
+                    'ténébres',
                     'dragon',
-                    'steel',
+                    'acier',
                     'poison',
-                    'fighting',
-                    'ice',
-                    'fairy',
-                    'bug',
-                    'ghost'
+                    'combat',
+                    'glace',
+                    'fée',
+                    'insect',
+                    'spectre'
                   ].map((type) {
                     return CheckboxListTile(
                       title: Text(type),
@@ -296,9 +296,19 @@ class PokemonDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    pokemon.description,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,  // Couleur neutre pour la catégorie
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      pokemon.category,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -320,80 +330,6 @@ class PokemonDetailScreen extends StatelessWidget {
                           style: const TextStyle(
                             color: Colors
                                 .white, // Texte blanc pour une meilleure lisibilité
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Faiblesse(s)',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  Wrap(
-                    spacing: 8,
-                    children: pokemon.weaks.map((type) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: getTypeColor(type),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          type,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 26),
-                  Text(
-                    'Résistance(s)',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  Wrap(
-                    spacing: 8,
-                    children: pokemon.resistances.map((type) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: getTypeColor(type),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          type,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 26),
-                  Text(
-                    'Immunité(s)',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  Wrap(
-                    spacing: 8,
-                    children: pokemon.imunes.isEmpty ? 
-                    [Text('Aucune immunité', style: Theme.of(context).textTheme.titleMedium,)] 
-                    : pokemon.imunes.map((type) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: getTypeColor(type),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          type,
-                          style: const TextStyle(
-                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

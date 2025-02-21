@@ -2,41 +2,41 @@ import 'package:flutter/material.dart';
 
 Color getTypeColor(String type) {
   switch (type.toLowerCase()) {
-    case 'fire':
+    case 'feu':
       return Colors.red;
-    case 'water':
+    case 'eau':
       return Colors.blue;
-    case 'grass':
+    case 'plante':
       return Colors.green;
-    case 'electric':
+    case 'electrik':
       return Colors.yellow;
-    case 'psychic':
+    case 'psy':
       return Colors.pink;
-    case 'rock':
+    case 'roche':
       return Colors.brown;
-    case 'ground':
+    case 'sol':
       return Colors.orange;
-    case 'flying':
+    case 'vol':
       return Colors.blue.shade200;
-    case 'dark':
+    case 'ténébres':
       return Colors.black;
     case 'dragon':
       return Colors.indigo;
-    case 'steel':
+    case 'acier':
       return Colors.grey;
     case 'poison':
       return Colors.purpleAccent;
-    case 'fighting':
+    case 'combat':
       return Colors.deepOrangeAccent;
-    case 'ice':
+    case 'glace':
       return Colors.cyan;
-    case 'fairy':
+    case 'fée':
       return Colors.pinkAccent;
     case 'normal':
       return Colors.grey.shade400;
-    case 'bug':
+    case 'insecte':
       return Colors.lightGreen;
-    case 'ghost':
+    case 'spectre':
       return Colors.purple;
     default:
       return Colors.black; // Par défaut, noir si le type n'est pas reconnu

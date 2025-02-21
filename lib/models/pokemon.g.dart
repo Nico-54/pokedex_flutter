@@ -22,11 +22,11 @@ class PokemonAdapter extends TypeAdapter<Pokemon> {
       imageUrl: fields[2] as String,
       types: (fields[3] as List).cast<String>(),
       stats: fields[4] as Stats,
-      description: fields[5] as String,
+      category: fields[5] as String,
       isSelected: fields[6] as bool,
-      resistances: (fields[7] as List).cast<String>(),
-      imunes: (fields[8] as List).cast<String>(),
-      weaks: (fields[9] as List).cast<String>(),
+      // resistances: (fields[7] as List).cast<String>(),
+      // imunes: (fields[8] as List).cast<String>(),
+      // weaks: (fields[9] as List).cast<String>(),
     );
   }
 
@@ -45,15 +45,15 @@ class PokemonAdapter extends TypeAdapter<Pokemon> {
       ..writeByte(4)
       ..write(obj.stats)
       ..writeByte(5)
-      ..write(obj.description)
+      ..write(obj.category)
       ..writeByte(6)
-      ..write(obj.isSelected)
-      ..writeByte(7)
-      ..write(obj.resistances)
-      ..writeByte(8)
-      ..write(obj.imunes)
-      ..writeByte(9)
-      ..write(obj.weaks);
+      ..write(obj.isSelected);
+      // ..writeByte(7)
+      // ..write(obj.resistances)
+      // ..writeByte(8)
+      // ..write(obj.imunes)
+      // ..writeByte(9)
+      // ..write(obj.weaks);
   }
 
   @override

@@ -4,7 +4,7 @@ Réaliser par Nicolas LEIRITZ dans le cadre d'un apprentissage Flutter au CESI d
 
 # pokemon_project
 
-Création d'un pokédex avec un système de composition d'équipe, composition aléatoire de l'équipe adverse et système de combat.
+Création d'un pokédex avec un système de composition d'équipe, composition aléatoire de l'équipe adverse et système de combat. L'api utilisée est https://tyradex.vercel.app/
 
 # Combat
 
@@ -12,7 +12,7 @@ Les combats sont la somme de toutes les bases des pokémon composant chaque équ
 
 # Filtres
 
-Il est possible de rechercher un pokemon par son nom (Anglais) ou par son type.
+Il est possible de rechercher un pokemon par son nom (Français pour l'instant) ou par son type (en cours de dev).
 
 # Captures
 

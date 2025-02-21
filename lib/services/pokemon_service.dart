@@ -3,46 +3,66 @@ import 'package:http/http.dart' as http;
 import '../models/pokemon.dart';
 
 class PokemonService {
-  static const String baseUrl = 'https://pokeapi.co/api/v2';
+  static const String baseUrl = 'https://tyradex.vercel.app/api/v1';
 
-  Future<List<Pokemon>> getPokemonList({int limit = 250}) async {
-    final response = await http.get(Uri.parse('$baseUrl/pokemon?limit=$limit'));
+  Future<List<Pokemon>> getPokemonList() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/pokemon'));
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final List<dynamic> results = data['results'];
+      if (response.statusCode == 200) {
+        final List<dynamic> results = json.decode(response.body);
 
-      final pokemons = await Future.wait(
-          results.map((pokemon) => getPokemonDetails(pokemon['url'])).toList());
-
-      return pokemons;
-    } else {
-      throw Exception('Échec du chargement des Pokémon');
+        return results.map((pokemon) => Pokemon(
+          id: pokemon['pokedex_id'] ?? 0,
+          name: pokemon['name']['fr'] ?? 'Nom Inconnu',
+          imageUrl: pokemon['sprites']['regular'] ?? '',
+          types: (pokemon['types'] == null) 
+            ? ['Type inconnu'] 
+            : ((pokemon['types'] as List).map<String>((type) => type['name'] ?? 'Type inconnu').toList()),
+          stats: (pokemon['stats'] == null)
+            ? Stats(hp: 0, attack: 0, defense: 0, specialAttack: 0, specialDefense: 0, speed: 0)
+            : Stats(
+                hp: pokemon['stats']['hp'] ?? 0,
+                attack: pokemon['stats']['atk'] ?? 0,
+                defense: pokemon['stats']['def'] ?? 0,
+                specialAttack: pokemon['stats']['spe_atk'] ?? 0,
+                specialDefense: pokemon['stats']['spe_def'] ?? 0,
+                speed: pokemon['stats']['vit'] ?? 0,
+              ),
+          category: pokemon['category'] ?? 'Catégorie inconnue',
+        )).toList();
+      } else {
+        throw Exception('Erreur ${response.statusCode} lors du chargement des Pokémon.');
+      }
+    } catch (e) {
+      throw Exception('Erreur lors du chargement de la liste des Pokémon : $e');
     }
   }
 
-  Future<Pokemon> getPokemonDetails(String url) async {
-    final response = await http.get(Uri.parse(url));
+  Future<Pokemon> getPokemonDetails(int id) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/pokemon/$id'));
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
 
-      // Récupérer la description
-      final speciesResponse =
-          await http.get(Uri.parse('$baseUrl/pokemon-species/${data['id']}'));
-
-      if (speciesResponse.statusCode == 200) {
-        final speciesData = json.decode(speciesResponse.body);
-        final description = speciesData['flavor_text_entries'].firstWhere(
-            (entry) => entry['language']['name'] == 'fr')['flavor_text'];
-
-        data['description'] = description;
-        return Pokemon.fromJson(data);
+        return Pokemon(
+          id: data['pokedex_id'] ?? 0,
+          name: data['name']['fr'] ?? 'Nom Inconnu',
+          imageUrl: data['sprites']['regular'] ?? '',
+          types: (data['types'] == null) 
+            ? ['Type inconnu'] 
+            : ((data['types'] as List).map<String>((type) => type['name'] ?? 'Type inconnu').toList()),
+          stats: (data['stats'] == null)
+            ? Stats(hp: 0, attack: 0, defense: 0, specialAttack: 0, specialDefense: 0, speed: 0)
+            : Stats.fromJson(data['stats']),
+          category: data['category'] ?? 'Catégorie inconnue',
+        );
       } else {
-        throw Exception('Échec du chargement des détails du Pokémon');
+        throw Exception('Erreur ${response.statusCode} lors du chargement des détails du Pokémon.');
       }
-    } else {
-      throw Exception('Échec du chargement des détails du Pokémon');
+    } catch (e) {
+      throw Exception('Erreur lors du chargement des détails du Pokémon : $e');
     }
   }
 }
