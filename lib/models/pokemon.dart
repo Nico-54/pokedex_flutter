@@ -14,7 +14,7 @@ class Pokemon {
   final String imageUrl;
 
   @HiveField(3)
-  final List<String> types;
+  final List<PokemonType> types;
   
   @HiveField(4)
   final Stats stats;
@@ -24,15 +24,6 @@ class Pokemon {
   
   @HiveField(6)
   bool isSelected;
-  
-  // @HiveField(7)
-  // final List<String> resistances;
-  
-  // @HiveField(8)
-  // final List<String> imunes;
-  
-  // @HiveField(9)
-  // final List<String> weaks;
 
   Pokemon({
     required this.id,
@@ -42,107 +33,19 @@ class Pokemon {
     required this.stats,
     required this.category,
     this.isSelected = false,
-    // required this.resistances,
-    // required this.imunes,
-    // required this.weaks,
   });
 
   factory Pokemon.fromJson(Map<String, dynamic> json) {
-    // List<String> types = (json['types'] as List)
-    // .map((type) => type['type']['name'] as String)
-    // .toList();
-
-  //   List<String> getResistances(List<String> types) {
-  //     final Map<String, List<String>> typeResistances = {
-  //     'steel': ['normal', 'grass', 'ice', 'flying', 'psychic', 'bug', 'rock', 'dragon', 'steel', 'fairy'],
-  //     'fighting': ['bug', 'rock', 'dark'],
-  //     'dragon': ['water', 'electric', 'fire', 'grass'],
-  //     'water': ['fire', 'water', 'ice', 'steel'],
-  //     'electric': ['electric', 'flying', 'steel'],
-  //     'fairy': ['fighting', 'bug', 'dark'],
-  //     'fire': ['fire', 'grass', 'ice', 'bug', 'steel', 'fairy'],
-  //     'ice': ['ice'],
-  //     'bug': ['fighting', 'grass', 'ground'],
-  //     'grass': ['water', 'electric', 'grass', 'ground'],
-  //     'poison': ['fighting', 'fairy', 'bug', 'grass', 'poison'],
-  //     'psychic': ['fighting', 'psychic'],
-  //     'rock': ['normal', 'fire', 'poison', 'flying'],
-  //     'ground': ['poison', 'rock'],
-  //     'ghost': ['bug', 'poison'],
-  //     'dark': ['ghost', 'dark'],
-  //     'flying': ['fighting', 'bug', 'grass'],
-  //   };
-
-  //   Set<String> resistances = {};
-  
-  //   for (var type in types) {
-  //     if (typeResistances.containsKey(type)) {
-  //       resistances.addAll(typeResistances[type]!);
-  //     }
-  //   }
-  
-  //   return resistances.toList();
-  // }
-  //   List<String> getImunes(List<String> types) {
-  //     final Map<String, List<String>> typeImunes = {
-  //     'fairy': ['dragon'],
-  //     'normal': ['ghost'],
-  //     'ground': ['electric'],
-  //     'ghost': ['fighting', 'normal'],
-  //     'dark': ['psychic'],
-  //     'flying': ['ground'],
-  //   };
-
-  //   Set<String> imunes = {};
-
-  //   for (var type in types) {
-  //     if (typeImunes.containsKey(type)) {
-  //       imunes.addAll(typeImunes[type]!);
-  //     }
-  //   }
-
-  //   return imunes.toList();
-  // }
-  //   List<String> getWeaks(List<String> types) {
-  //     final Map<String, List<String>> typeWeaks = {
-  //     'steel': ['flying', 'fire', 'ground'],
-  //     'fighting': ['psychic', 'fairy', 'flying'],
-  //     'dragon': ['dragon', 'fairy', 'ice'],
-  //     'water': ['electric', 'grace'],
-  //     'electric': ['ground'],
-  //     'fairy': ['steel', 'poison'],
-  //     'fire': ['water', 'ground', 'rock'],
-  //     'ice': ['steel', 'fighting', 'fire', 'rock'],
-  //     'bug': ['fire', 'rock'],
-  //     'normal': ['fighting'],
-  //     'grass': ['fire', 'ice', 'bug', 'poison', 'flying'],
-  //     'poison': ['psychic', 'ground'],
-  //     'psychic': ['bug', 'ghost', 'dark'],
-  //     'rock': ['steel', 'fighting', 'water', 'grass', 'ground'],
-  //     'ground': ['water', 'ice', 'grass'],
-  //     'ghost': ['ghost', 'dark'],
-  //     'dark': ['fighting', 'fairy', 'bug'],
-  //     'flying': ['electric', 'ice', 'rock'],
-  //   };
-
-  //   Set<String> weaks = {};
-
-  //   for (var type in types) {
-  //     if (typeWeaks.containsKey(type)) {
-  //       weaks.addAll(typeWeaks[type]!);
-  //     }
-  //   }
-
-  //   return weaks.toList();
-  // }
-
 
     return Pokemon(
       id: json['id'],
       name: json['name'],
       imageUrl: json['sprites']?['other']?['official-artwork']?['front_default'] ?? '',
-      types: (json['types'] as List)
-          .map((type) => type['type']['name'] as String)
+      types: (json['types'] as List<dynamic>)
+          .map((typeJson) => PokemonType(
+                name: typeJson['name'],
+                imageUrl: typeJson['image'],
+              ))
           .toList(),
       stats: Stats.fromJson(json['stats']),
       category: json['category'] ?? '',
@@ -211,4 +114,18 @@ class Team {
   bool get isFull => pokemons.length >= 6;
   int get totalPower =>
       pokemons.fold(0, (sum, pokemon) => sum + pokemon.totalStats);
+}
+
+@HiveType(typeId: 2)
+class PokemonType {
+  @HiveField(0)
+  final String name;
+
+  @HiveField(1)
+  final String imageUrl;
+
+  PokemonType({
+    required this.name,
+    required this.imageUrl,
+  });
 }

@@ -20,7 +20,7 @@ class PokemonAdapter extends TypeAdapter<Pokemon> {
       id: fields[0] as int,
       name: fields[1] as String,
       imageUrl: fields[2] as String,
-      types: (fields[3] as List).cast<String>(),
+      types: (fields[3] as List).cast<PokemonType>(),
       stats: fields[4] as Stats,
       category: fields[5] as String,
       isSelected: fields[6] as bool,

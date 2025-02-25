@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import './models/pokemon.dart';
 import './pokemon_provider.dart';
-import './services/pokemon_colors.dart';
+//import './services/pokemon_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -130,6 +130,27 @@ class _PokemonListScreenState extends State<PokemonListScreen> {
 
   // Fonction pour afficher la fenêtre modale de filtre
   void _showFilterDialog(BuildContext context) {
+    final pokemonTypes = [
+      {'name': 'normal', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/normal.png'},
+      {'name': 'feu', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/feu.png'},
+      {'name': 'eau', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/eau.png'},
+      {'name': 'plante', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/plante.png'},
+      {'name': 'électrik', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/electrik.png'},
+      {'name': 'psy', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/psy.png'},
+      {'name': 'roche', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/roche.png'},
+      {'name': 'sol', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/sol.png'},
+      {'name': 'vol', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/vol.png'},
+      {'name': 'ténébres', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/tenebres.png'},
+      {'name': 'dragon', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/dragon.png'},
+      {'name': 'acier', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/acier.png'},
+      {'name': 'poison', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/poison.png'},
+      {'name': 'combat', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/combat.png'},
+      {'name': 'glace', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/glace.png'},
+      {'name': 'fée', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/fee.png'},
+      {'name': 'insect', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/insecte.png'},
+      {'name': 'spectre', 'image': 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/spectre.png'},
+    ];
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -146,36 +167,30 @@ class _PokemonListScreenState extends State<PokemonListScreen> {
               // Liste des types de Pokémon
               Expanded(
                 child: ListView(
-                  children: [
-                    'normal',
-                    'feu',
-                    'eau',
-                    'plante',
-                    'electrik',
-                    'psy',
-                    'roche',
-                    'sol',
-                    'vol',
-                    'ténébres',
-                    'dragon',
-                    'acier',
-                    'poison',
-                    'combat',
-                    'glace',
-                    'fée',
-                    'insect',
-                    'spectre'
-                  ].map((type) {
+                  children: pokemonTypes.map((type) {
                     return CheckboxListTile(
-                      title: Text(type),
+                      title: Row(
+                        children: [
+                          Image.network(
+                            type['image'] ?? '',
+                            height: 24,
+                            width: 24,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons.error);
+                            },
+                          ),
+                          SizedBox(width: 8),
+                          Text(type['name'] ?? ''),
+                        ],
+                      ),
                       value: context
                           .watch<PokemonProvider>()
                           .selectedTypes
-                          .contains(type),
+                          .contains(type['name'] ?? ''),
                       onChanged: (bool? selected) {
                         context
                             .read<PokemonProvider>()
-                            .toggleTypeSelection(type, selected ?? false);
+                            .toggleTypeSelection(type['name'] ?? '', selected ?? false);
                       },
                     );
                   }).toList(),
@@ -244,19 +259,31 @@ class PokemonCard extends StatelessWidget {
                     spacing: 4,
                     children: pokemon.types.map((type) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: getTypeColor(type),
                           borderRadius: BorderRadius.circular(16),
+                          color: Colors.grey[200], // Exemple de couleur de fond
                         ),
-                        child: Text(
-                          type,
-                          style: const TextStyle(
-                            color: Colors
-                                .white, // Texte blanc pour une meilleure lisibilité
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.network(
+                              type.imageUrl,
+                              height: 24,
+                              width: 24,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(Icons.error); // Afficher une icône d'erreur en cas de problème de chargement de l'image
+                              },
+                            ),
+                            SizedBox(width: 8), // Espacement entre l'image et le texte
+                            Text(
+                              type.name, // Affichage du nom du type
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }).toList(),
@@ -316,22 +343,30 @@ class PokemonDetailScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   Wrap(
-                    spacing: 8,
+                    spacing: 4,
                     children: pokemon.types.map((type) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: getTypeColor(type),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          type,
-                          style: const TextStyle(
-                            color: Colors
-                                .white, // Texte blanc pour une meilleure lisibilité
-                            fontWeight: FontWeight.bold,
-                          ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.network(
+                              type.imageUrl,
+                              height: 34,
+                              width: 34,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(Icons.error); // Afficher une icône d'erreur en cas de problème de chargement de l'image
+                              },
+                            ),
+                            SizedBox(width: 8), // Espacement entre l'image et le texte
+                            Text(
+                              type.name, // Affichage du nom du type
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }).toList(),

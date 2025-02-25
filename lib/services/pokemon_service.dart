@@ -17,8 +17,11 @@ class PokemonService {
           name: pokemon['name']['fr'] ?? 'Nom Inconnu',
           imageUrl: pokemon['sprites']['regular'] ?? '',
           types: (pokemon['types'] == null) 
-            ? ['Type inconnu'] 
-            : ((pokemon['types'] as List).map<String>((type) => type['name'] ?? 'Type inconnu').toList()),
+            ? [PokemonType(name: 'Type Inconnu', imageUrl: '')] 
+            : (pokemon['types'] as List).map<PokemonType>((type) => PokemonType(
+                name: type['name'] ?? 'Type inconnu',
+                imageUrl: type['image'] ?? '',
+              )).toList(),
           stats: (pokemon['stats'] == null)
             ? Stats(hp: 0, attack: 0, defense: 0, specialAttack: 0, specialDefense: 0, speed: 0)
             : Stats(
@@ -51,8 +54,11 @@ class PokemonService {
           name: data['name']['fr'] ?? 'Nom Inconnu',
           imageUrl: data['sprites']['regular'] ?? '',
           types: (data['types'] == null) 
-            ? ['Type inconnu'] 
-            : ((data['types'] as List).map<String>((type) => type['name'] ?? 'Type inconnu').toList()),
+            ? [PokemonType(name: 'Type Inconnu', imageUrl: '')]
+            : (data['types'] as List).map<PokemonType>((type) => PokemonType(
+                name: type['name'] ?? 'Type inconnu',
+                imageUrl: type['image'] ?? '',
+              )).toList(),
           stats: (data['stats'] == null)
             ? Stats(hp: 0, attack: 0, defense: 0, specialAttack: 0, specialDefense: 0, speed: 0)
             : Stats.fromJson(data['stats']),

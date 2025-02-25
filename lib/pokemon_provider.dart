@@ -58,22 +58,35 @@ class PokemonProvider with ChangeNotifier {
       selectedTypes.remove(type);
     }
     filterByType();
-    notifyListeners();
   }
 
   void filterByType() {
+
     if (selectedTypes.isEmpty) {
-      filteredPokemons = [];
+      filteredPokemons = allPokemons;
+      print('Aucun type sélectionné, affichage de tous les Pokémon: ${filteredPokemons.length}');
     } else {
-      filteredPokemons = allPokemons
-          .where((pokemon) =>
-              selectedTypes.any((type) => pokemon.types.contains(type)))
-          .toList();
+      filteredPokemons = allPokemons.where((pokemon) {
+        // Vérifier si ce Pokémon a au moins un des types sélectionnés
+        for (final selectedType in selectedTypes) {
+          for (final pokemonType in pokemon.types) {
+            // Comparaison insensible à la casse
+            if (pokemonType.name.toLowerCase() == selectedType.toLowerCase()) {
+              return true; // Ce Pokémon correspond, donc on le garde
+            }
+          }
+        }
+        return false; // Aucun type correspondant trouvé pour ce Pokémon
+      }).toList();
+
+      print('Pokémon filtrés: ${filteredPokemons.length} sur ${allPokemons.length}');
     }
+
     notifyListeners(); // Notifie l'UI pour actualiser la liste
   }
 
-// Favoris
+
+  // Favoris
   void toggleFavorite(Pokemon pokemon) {
     if (_favoriteBox.containsKey(pokemon.id)) {
       _favoriteBox.delete(pokemon.id);
