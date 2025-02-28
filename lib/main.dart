@@ -12,6 +12,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(PokemonAdapter());
   Hive.registerAdapter(StatsAdapter());
+  Hive.registerAdapter(PokemonTypeAdapter());
 
   await Hive.openBox<Pokemon>('favorites');
 
@@ -37,6 +38,43 @@ class PokemonApp extends StatelessWidget {
         ),
       ),
       home: const PokemonListScreen(),
+    );
+  }
+}
+
+class PokemonListByGeneration extends StatelessWidget {
+  final List<Map<String, dynamic>> pokemons;
+
+  const PokemonListByGeneration({super.key, required this.pokemons});
+
+  @override
+  Widget build(BuildContext context) {
+    // Récupérer les générations uniques triées
+    final generations = pokemons.map((p) => p['generation'] as int).toSet().toList()..sort();
+
+    return ListView(
+      children: generations.map((generation) {
+        // Filtrer les Pokémon de la génération actuelle
+        final pokemonsOfGen = pokemons.where((p) => p['generation'] == generation).toList();
+
+        return ExpansionTile(
+          title: Text('Génération $generation'),
+          children: pokemonsOfGen.map((pokemon) {
+            return ListTile(
+              leading: Image.network(
+                pokemon['sprites']['regular'],
+                width: 50,
+                height: 50,
+              ),
+              title: Text(pokemon['name']['fr']),
+              subtitle: Text(pokemon['category']),
+              onTap: () {
+                // Action quand on appuie sur un Pokémon
+              },
+            );
+          }).toList(),
+        );
+      }).toList(),
     );
   }
 }
@@ -108,18 +146,40 @@ class _PokemonListScreenState extends State<PokemonListScreen> {
                     ? provider.allPokemons
                     : provider.filteredPokemons;
 
-                return GridView.builder(
-                  padding: const EdgeInsets.all(8),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.75,
-                  ),
-                  itemCount: pokemonsToDisplay.length,
-                  itemBuilder: (context, index) {
-                    final pokemon = pokemonsToDisplay[index];
-                    return PokemonCard(pokemon: pokemon);
-                  },
+            // Obtenir la liste unique des générations
+            final generations = pokemonsToDisplay
+                .map((p) => p.generation)
+                .toSet()
+                .toList()
+              ..sort();
+
+            return ListView(
+              children: generations.map((generation) {
+                final pokemonsOfGen = pokemonsToDisplay
+                    .where((p) => p.generation == generation)
+                    .toList();
+
+                return ExpansionTile(
+                  title: Text('Génération $generation'),
+                  children: [
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(8),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.75,
+                      ),
+                      itemCount: pokemonsOfGen.length,
+                      itemBuilder: (context, index) {
+                        final pokemon = pokemonsOfGen[index];
+                        return PokemonCard(pokemon: pokemon);
+                      },
+                    ),
+                  ],
                 );
+              }).toList(),
+            );
               },
             ),
           ),
@@ -239,7 +299,7 @@ class PokemonCard extends StatelessWidget {
             ),
             Expanded(
               child: Image.network(
-                pokemon.imageUrl,
+                pokemon.sprites,
                 fit: BoxFit.contain,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
@@ -298,25 +358,127 @@ class PokemonCard extends StatelessWidget {
   }
 }
 
-// pokemon_detail_screen.dart
-class PokemonDetailScreen extends StatelessWidget {
+class PokemonDetailScreen extends StatefulWidget {
   final Pokemon pokemon;
 
   const PokemonDetailScreen({super.key, required this.pokemon});
 
   @override
+  State<PokemonDetailScreen> createState() => _PokemonDetailScreenState();
+}
+
+class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
+  // Fonction d'aide pour déterminer quelle URL d'image utiliser
+  String _getImageUrl(Pokemon pokemon, bool isShiny, bool isGmax) {
+    if (isGmax && pokemon.gmaxSprites != null) {
+      return pokemon.gmaxSprites!;
+    } else if (isShiny) {
+      return pokemon.shinySprites;
+    } else {
+      return pokemon.sprites;
+    }
+  }
+
+  bool _isShiny = false;
+  bool _isGmax = false;
+
+  @override
   Widget build(BuildContext context) {
+    final hasGmax = widget.pokemon.gmaxSprites != null && widget.pokemon.gmaxSprites!.isNotEmpty;
+
     return Scaffold(
-      appBar: AppBar(title: Text(pokemon.name), backgroundColor: Colors.red,),
+      appBar: AppBar(
+        title: Text(widget.pokemon.name),
+        backgroundColor: Colors.red,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            AspectRatio(
-              aspectRatio: 1,
-              child: Image.network(
-                pokemon.imageUrl,
-                fit: BoxFit.contain,
-              ),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: Image.network(
+                    _getImageUrl(widget.pokemon, _isShiny, _isGmax),
+                    fit: BoxFit.contain,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(Icons.broken_image, size: 80),
+                      );
+                    },
+                  ),
+                ),
+                // Bouton shiny
+                Positioned(
+                  bottom: 16,
+                  right: hasGmax ? 76 : 16, // Décalage s'il y a un bouton Gmax
+                  child: Material(
+                    elevation: 4,
+                    shape: const CircleBorder(),
+                    color: _isShiny ? Colors.amber : Colors.white,
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _isShiny = !_isShiny;
+                          // Si on active shiny, désactiver Gmax pour éviter la confusion
+                          if (_isShiny) _isGmax = false;
+                        });
+                      },
+                      customBorder: const CircleBorder(),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        child: Icon(
+                          Icons.auto_awesome,
+                          color: _isShiny ? Colors.white : Colors.amber,
+                          size: 28,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Bouton Gmax (si disponible)
+                if (hasGmax)
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: Material(
+                      elevation: 4,
+                      shape: const CircleBorder(),
+                      color: _isGmax ? Colors.red : Colors.white,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _isGmax = !_isGmax;
+                            // Si on active Gmax, désactiver shiny pour éviter la confusion
+                            if (_isGmax) _isShiny = false;
+                          });
+                        },
+                        customBorder: const CircleBorder(),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          child: Icon(
+                            Icons.height,
+                            color: _isGmax ? Colors.white : Colors.red,
+                            size: 28,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.all(16),
@@ -330,7 +492,7 @@ class PokemonDetailScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      pokemon.category,
+                      widget.pokemon.category,
                       style: const TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
@@ -344,7 +506,7 @@ class PokemonDetailScreen extends StatelessWidget {
                   ),
                   Wrap(
                     spacing: 4,
-                    children: pokemon.types.map((type) {
+                    children: widget.pokemon.types.map((type) {
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         child: Row(
@@ -355,13 +517,13 @@ class PokemonDetailScreen extends StatelessWidget {
                               height: 34,
                               width: 34,
                               errorBuilder: (context, error, stackTrace) {
-                                return Icon(Icons.error); // Afficher une icône d'erreur en cas de problème de chargement de l'image
+                                return const Icon(Icons.error); // Afficher une icône d'erreur en cas de problème de chargement de l'image
                               },
                             ),
-                            SizedBox(width: 8), // Espacement entre l'image et le texte
+                            const SizedBox(width: 8), // Espacement entre l'image et le texte
                             Text(
                               type.name, // Affichage du nom du type
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -371,27 +533,37 @@ class PokemonDetailScreen extends StatelessWidget {
                       );
                     }).toList(),
                   ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Ligne évolutive",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Wrap(
+                    children: [
+                    _buildEvolutionChain(widget.pokemon),
+                    ]   
+                  ),
                   const SizedBox(height: 26),
                   Text(
                     'Statistiques',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  StatsWidget(stats: pokemon.stats),
+                  StatsWidget(stats: widget.pokemon.stats),
                   const SizedBox(height: 16),
                   Consumer<PokemonProvider>(
                     builder: (context, provider, child) {
                       final isInTeam =
-                          provider.playerTeam.pokemons.contains(pokemon);
+                          provider.playerTeam.pokemons.contains(widget.pokemon);
                       return ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                          backgroundColor:isInTeam ? Colors.red : Colors.green,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isInTeam ? Colors.red : Colors.green,
                           foregroundColor: Colors.white, // Texte en blanc
                         ),
                         onPressed: () {
                           if (isInTeam) {
-                            provider.removeFromPlayerTeam(pokemon);
+                            provider.removeFromPlayerTeam(widget.pokemon);
                           } else {
-                            provider.addToPlayerTeam(pokemon, context);
+                            provider.addToPlayerTeam(widget.pokemon, context);
                           }
                         },
                         child: Text(
@@ -537,7 +709,7 @@ class FavoritePokemonsScreen extends StatelessWidget {
                 final pokemon = provider.favorites[index];
                 return ListTile(
                   leading: Image.network(
-                    pokemon.imageUrl,
+                    pokemon.sprites,
                     fit: BoxFit.contain,
                     width: 50,
                     height: 50,
@@ -631,7 +803,7 @@ class PokemonTeamCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Image.network(
-                  pokemon.imageUrl,
+                  pokemon.sprites,
                   fit: BoxFit.contain,
                 ),
               ),
@@ -658,6 +830,124 @@ class PokemonTeamCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// Construction de la ligne évolutive
+Widget _buildEvolutionChain(Pokemon pokemon) {
+  if (pokemon.evolution == null) {
+    return const Text("Pas d'évolution connue");
+  }
+
+  List<Widget> evolutionWidgets = [];
+
+  // Afficher les pré-évolutions
+  if (pokemon.evolution!.pre != null && pokemon.evolution!.pre!.isNotEmpty) {
+    for (var i = 0; i < pokemon.evolution!.pre!.length; i++) {
+      evolutionWidgets.add(_buildEvolutionStep(pokemon.evolution!.pre![i]));
+      
+      // Ajouter une flèche si ce n'est pas le dernier élément
+      if (i < pokemon.evolution!.pre!.length - 1) {
+        evolutionWidgets.add(_buildArrow());
+      }
+    }
+    // Ajouter une flèche entre pré-évolution et Pokémon actuel
+    evolutionWidgets.add(_buildArrow());
+  }
+
+  // Ajouter le Pokémon actuel
+  evolutionWidgets.add(_buildCurrentPokemon(pokemon));
+
+  // Afficher les évolutions suivantes
+  if (pokemon.evolution!.next != null && pokemon.evolution!.next!.isNotEmpty) {
+    // Ajouter une flèche entre Pokémon actuel et évolution
+    evolutionWidgets.add(_buildArrow());
+    
+    for (var i = 0; i < pokemon.evolution!.next!.length; i++) {
+      evolutionWidgets.add(_buildEvolutionStep(pokemon.evolution!.next![i]));
+      
+      // Ajouter une flèche si ce n'est pas le dernier élément
+      if (i < pokemon.evolution!.next!.length - 1) {
+        evolutionWidgets.add(_buildArrow());
+      }
+    }
+  }
+
+  return Wrap(
+    alignment: WrapAlignment.center,
+    spacing: 8.0,
+    runSpacing: 16.0,
+    children: evolutionWidgets,
+  );
+}
+
+Widget _buildArrow() {
+  return const Icon(Icons.arrow_forward, color: Colors.grey);
+}
+
+Widget _buildEvolutionStep(EvolutionStep step) {
+  return InkWell(
+    onTap: () {
+      // Vous pourriez naviguer vers ce Pokémon ici
+      // Navigator.push(context, MaterialPageRoute(builder: (context) => PokemonDetailScreen(id: step.pokedexId)));
+    },
+    child: Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.grey,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Vous pourriez ajouter une image ici si disponible
+          // Image.network("URL_BASE/${step.pokedexId}.png", height: 60),
+          Text(
+            step.name,
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.amber,
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            child: Text(
+              step.condition,
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildCurrentPokemon(Pokemon pokemon) {
+  return Container(
+    padding: const EdgeInsets.all(12.0),
+    decoration: BoxDecoration(
+      color: Colors.blue,
+      borderRadius: BorderRadius.circular(8.0),
+      border: Border.all(color: Colors.blue.shade300),
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Vous pouvez utiliser l'image existante
+        Image.network(pokemon.sprites, height: 70),
+        const SizedBox(height: 4),
+        Text(
+          pokemon.name,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const Text(
+          "Forme actuelle",
+          style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+        ),
+      ],
+    ),
+  );
 }
 
 class EmptyPokemonSlot extends StatelessWidget {

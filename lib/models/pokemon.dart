@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:flutter/foundation.dart';
 
 part 'pokemon.g.dart'; // Génère le fichier d'adapteur
 
@@ -11,36 +12,55 @@ class Pokemon {
   final String name;
 
   @HiveField(2)
-  final String imageUrl;
+  final String sprites;
 
   @HiveField(3)
-  final List<PokemonType> types;
-  
+  final String shinySprites;
+
   @HiveField(4)
-  final Stats stats;
+  final String? gmaxSprites;
 
   @HiveField(5)
-  final String category;
+  final List<PokemonType> types;
   
   @HiveField(6)
+  final Stats stats;
+
+  @HiveField(7)
+  final String category;
+
+  @HiveField(8)
+  final int generation;
+
+  @HiveField(9)
+  final Evolution? evolution;
+  
+  @HiveField(10)
   bool isSelected;
 
   Pokemon({
     required this.id,
     required this.name,
-    required this.imageUrl,
+    required this.sprites,
+    required this.shinySprites,
+    this.gmaxSprites,
     required this.types,
     required this.stats,
     required this.category,
+    required this.generation,
     this.isSelected = false,
+    this.evolution,
   });
 
   factory Pokemon.fromJson(Map<String, dynamic> json) {
-
+debugPrint("Chargement du Pokémon: ${json['name'] ?? 'Inconnu'}"); 
     return Pokemon(
-      id: json['id'],
+      id: json['pokedex_id'],
       name: json['name'],
-      imageUrl: json['sprites']?['other']?['official-artwork']?['front_default'] ?? '',
+      sprites: json['sprites']['regular'],
+      shinySprites: json['sprites']['shiny'],
+      gmaxSprites: json['sprites']['gmax'],
+      generation: json['generation'],
       types: (json['types'] as List<dynamic>)
           .map((typeJson) => PokemonType(
                 name: typeJson['name'],
@@ -49,9 +69,9 @@ class Pokemon {
           .toList(),
       stats: Stats.fromJson(json['stats']),
       category: json['category'] ?? '',
-      // resistances: getResistances(types),
-      // imunes: getImunes(types),
-      // weaks: getWeaks(types),
+      evolution: json['evolution'] != null
+          ? Evolution.fromJson(json['evolution'])
+          : null,
     );
   }
 
@@ -128,4 +148,57 @@ class PokemonType {
     required this.name,
     required this.imageUrl,
   });
+}
+
+@HiveType(typeId: 3)
+class Evolution {
+  @HiveField(0)
+  final List<EvolutionStep>? pre;
+
+  @HiveField(1)
+  final List<EvolutionStep>? next;
+
+  Evolution({this.pre, this.next});
+
+  factory Evolution.fromJson(Map<String, dynamic> json) {
+    debugPrint("Création de Evolution avec: $json");
+    return Evolution(
+      pre: json['pre'] != null
+          ? (json['pre'] as List<dynamic>)
+              .map((e) => EvolutionStep.fromJson(e))
+              .toList()
+          : null,
+      next: json['next'] != null
+          ? (json['next'] as List<dynamic>)
+              .map((e) => EvolutionStep.fromJson(e))
+              .toList()
+          : null,
+    );
+  }
+}
+
+@HiveType(typeId: 4)
+class EvolutionStep {
+  @HiveField(0)
+  final int pokedexId;
+
+  @HiveField(1)
+  final String name;
+
+  @HiveField(2)
+  final String condition;
+
+  EvolutionStep({
+    required this.pokedexId,
+    required this.name,
+    required this.condition,
+  });
+
+  factory EvolutionStep.fromJson(Map<String, dynamic> json) {
+    return EvolutionStep(
+      pokedexId: json['pokedex_id'],
+      name: json['name'],
+      condition: json['condition'],
+    );
+  }
 }

@@ -19,41 +19,44 @@ class PokemonAdapter extends TypeAdapter<Pokemon> {
     return Pokemon(
       id: fields[0] as int,
       name: fields[1] as String,
-      imageUrl: fields[2] as String,
-      types: (fields[3] as List).cast<PokemonType>(),
-      stats: fields[4] as Stats,
-      category: fields[5] as String,
-      isSelected: fields[6] as bool,
-      // resistances: (fields[7] as List).cast<String>(),
-      // imunes: (fields[8] as List).cast<String>(),
-      // weaks: (fields[9] as List).cast<String>(),
+      sprites: fields[2] as String,
+      shinySprites: fields[3] as String,
+      gmaxSprites: fields[4] as String?,
+      types: (fields[5] as List).cast<PokemonType>(),
+      stats: fields[6] as Stats,
+      category: fields[7] as String,
+      generation: fields[8] as int,
+      isSelected: fields[10] as bool,
+      evolution: fields[9] as Evolution?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Pokemon obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.imageUrl)
+      ..write(obj.sprites)
       ..writeByte(3)
-      ..write(obj.types)
+      ..write(obj.shinySprites)
       ..writeByte(4)
-      ..write(obj.stats)
+      ..write(obj.gmaxSprites)
       ..writeByte(5)
-      ..write(obj.category)
+      ..write(obj.types)
       ..writeByte(6)
+      ..write(obj.stats)
+      ..writeByte(7)
+      ..write(obj.category)
+      ..writeByte(8)
+      ..write(obj.generation)
+      ..writeByte(9)
+      ..write(obj.evolution)
+      ..writeByte(10)
       ..write(obj.isSelected);
-      // ..writeByte(7)
-      // ..write(obj.resistances)
-      // ..writeByte(8)
-      // ..write(obj.imunes)
-      // ..writeByte(9)
-      // ..write(obj.weaks);
   }
 
   @override
@@ -112,6 +115,120 @@ class StatsAdapter extends TypeAdapter<Stats> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is StatsAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class PokemonTypeAdapter extends TypeAdapter<PokemonType> {
+  @override
+  final int typeId = 2;
+
+  @override
+  PokemonType read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return PokemonType(
+      name: fields[0] as String,
+      imageUrl: fields[1] as String,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, PokemonType obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.name)
+      ..writeByte(1)
+      ..write(obj.imageUrl);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PokemonTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class EvolutionAdapter extends TypeAdapter<Evolution> {
+  @override
+  final int typeId = 3;
+
+  @override
+  Evolution read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return Evolution(
+      pre: (fields[0] as List?)?.cast<EvolutionStep>(),
+      next: (fields[1] as List?)?.cast<EvolutionStep>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, Evolution obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.pre)
+      ..writeByte(1)
+      ..write(obj.next);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EvolutionAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class EvolutionStepAdapter extends TypeAdapter<EvolutionStep> {
+  @override
+  final int typeId = 4;
+
+  @override
+  EvolutionStep read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return EvolutionStep(
+      pokedexId: fields[0] as int,
+      name: fields[1] as String,
+      condition: fields[2] as String,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, EvolutionStep obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.pokedexId)
+      ..writeByte(1)
+      ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.condition);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EvolutionStepAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
